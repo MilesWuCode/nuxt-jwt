@@ -39,13 +39,49 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/auth-next'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    proxy: true
+  },
+
+  proxy: {
+    '/laravel': {
+      target: 'http://localhost',
+      pathRewrite: { '^/laravel': '/' }
+    }
+  },
+
+  auth: {
+    strategies: {
+      laravelJWT: {
+        provider: 'laravel/jwt',
+        url: '/laravel',
+        endpoints: {
+          login: { url: '/api/auth/login', method: 'post' },
+          logout: { url: '/api/auth/logout', method: 'post' },
+          refresh: { url: '/api/auth/refresh', method: 'post' },
+          user: { url: '/api/auth/me', method: 'post' },
+        },
+        token: {
+          property: 'access_token',
+          maxAge: 120
+        },
+        refreshToken: {
+          maxAge: 3600
+        }
+      }
+    }
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+  },
+
+  router: {
+    middleware: ['auth']
   }
 }
